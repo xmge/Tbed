@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片上传</title>
+</head>
+
+
+<style>
+    body {
+        background-image: linear-gradient(102.7deg, #fddaff 8.2%, #dfadfc 19.6%, #adcdfc 36.8%, #adfcf4 73.2%, #caf8d0 90.9%);
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        font-family: 'Nunito', sans-serif;
+        color: #4f555f;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    #content {
+        top: 40%;
+        left: 50%;
+        width: 600px;
+        height: auto;
+        padding: 10px;
+        cursor: pointer;
+        position: absolute;
+        -webkit-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+
+    #tips {
+        width: auto;
+        padding-left: 10px;
+        padding-bottom: 10px;
+        font-size: 30px;
+        color: black;
+    }
+
+    #preview {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #img {
+        width: 100%;height: auto;
+    }
+
+    #copy {
+        background-color: #8abeb7;
+    }
+</style>
+
+
+<body>
+
+<div id="content">
+    <div id="drop_area">
+        <div id="preview">
+            <img id="img" src="/static/upload.png"  alt="" title="">
+        </div>
+    </div>
+</div>
+
+
+    <script src="/static/jquery-3.4.1.min.js"></script>
+    <script src="/static/upload.js"></script>
+    <script src="/static/message.js"></script>
+    <script type="text/javascript">
+
+        function copyText(text) {
+            var textarea = document.createElement("input");//创建input对象
+            var currentFocus = document.activeElement;//当前获得焦点的元素
+            document.body.appendChild(textarea);//添加元素
+            textarea.value = text;
+            textarea.focus();
+            if(textarea.setSelectionRange)
+                textarea.setSelectionRange(0, textarea.value.length);//获取光标起始位置到结束位置
+            else
+                textarea.select();
+            try {
+                var flag = document.execCommand("copy");//执行复制
+            } catch(eo) {
+                var flag = false;
+            }
+            document.body.removeChild(textarea);//删除元素
+            currentFocus.focus();
+            return flag;
+        }
+
+
+        var dragImgUpload = new DragImgUpload("#drop_area",{
+            callback:function (files) {
+                //回调函数，可以传递给后台等等
+                var formData = new FormData();
+                formData.append('file', files[0])
+                $.ajax({
+                    type: 'post',
+                    url: "/upload",
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        var flag = copyText(data.url);
+                        if (flag){
+                            $.message({
+                                message:'上传成功，url已复制',
+                                type:'success'
+                            });
+                        }else {
+                            $.message({
+                                message:'上传失败',
+                                type:'error'
+                            });
+                        }
+                    },
+                    error : function (data) {
+                        $.message({
+                            message:'上传失败',
+                            type: data.response
+                        });
+                    }
+                });
+            }
+        })
+    </script>
+</body>
+</html>
+
+
