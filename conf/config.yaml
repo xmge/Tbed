@@ -1,6 +1,6 @@
 addr: :8080
 img_file: ./img/
-password: 1234
+password: 12345
 
 tls:
   addr: :8081
